@@ -1,17 +1,3 @@
-game = null
-context = null
-jQuery ->
-	canvas = getCanvas()
-	context = canvas.getContext '2d'
-	game = new Game(canvas.width, canvas.height)
-	setInterval(run_loop, game.tempo)
-	
-run_loop = ->
-	game.run_loop();
-	
-	
-getCanvas = ->
-	$("#myCanvas")[0]
 	
 class Game
 	tempo: 30

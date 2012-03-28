@@ -1,38 +1,24 @@
-game = null
-context = null
-jQuery ->
-	canvas = getCanvas()
-	context = canvas.getContext '2d'
-	game = new Game(canvas.width, canvas.height)
-	setInterval(run_loop, game.tempo)
-	
-run_loop = ->
-	game.run_loop();
-	
-	
-getCanvas = ->
-	$("#myCanvas")[0]
-	
-class Game
+this.pong = {}	
+class pong.Game
 	tempo: 30
 	hits_for_winning: 10
 	winner: null
 	constructor: (width, height) ->		
-		@ball = new Ball()
-		@field = new Field(width, height)
-		@bat_right = new Bat('green', width - 15, height / 2, 40, 38)
-		@bat_left = new Bat('red', 5, height / 2, 89, 65)
+		@ball = new pong.Ball()
+		@field = new pong.Field(width, height)
+		@bat_right = new pong.Bat('green', width - 15, height / 2, 40, 38)
+		@bat_left = new pong.Bat('red', 5, height / 2, 89, 65)
 
-	run_loop: () ->
+	run_loop: (context) ->
 		context.clearRect(0, 0, @field.width, @field.height)
-		@field.draw()
-		@bat_left.draw()	
-		@bat_right.draw()	
+		@field.draw(context)
+		@bat_left.draw(context)	
+		@bat_right.draw(context)	
 		if (! @winner)
-			@bat_left.draw()	
-			@bat_right.draw()	
-			@ball.draw()
-			@ball.check_collision(game)
+			@bat_left.draw(context)	
+			@bat_right.draw(context)	
+			@ball.draw(context)
+			@ball.check_collision(this)
 			@ball.compute_new_pos()
 			@winner = @bat_left if (@bat_left.hits >= @hits_for_winning)
 			@winner = @bat_right if (@bat_right.hits >= @hits_for_winning)
@@ -41,7 +27,7 @@ class Game
 			context.fillStyle    = "#{@winner.color}"
 			context.textBaseline = 'top'
 			context.fillText("The winner is #{@winner.color}!", 20, @field.height / 2-30)
-class Ball
+class pong.Ball
 	color: "#0000ff"
 	size: 5, lineWidth: 2
 	x: 30, y: 300
@@ -84,7 +70,7 @@ class Ball
 		@x += @dx
 		@y += @dy
 	
-	draw: () ->
+	draw: (context) ->
 		context.beginPath()
 		context.arc(@x, @y, @size, 0, Math.PI*2, true)
 		context.closePath()	
@@ -92,7 +78,7 @@ class Ball
 		context.lineWidth = @lineWidth
 		context.stroke()
 
-class Bat
+class pong.Bat
 	width: 10, length: 80
 	hits: 0
 	constructor:(@color, @x, @y, @keynum_down, @keynum_up) ->
@@ -113,25 +99,25 @@ class Bat
 
 
 		
-	draw: ->
+	draw: (context) ->
 		@y -= 5 if @upPressed
 		@y += 5 if @downPressed
 		context.fillStyle = 'rgba(0,0,0,0.8)'
 		context.fillRect @x, @y, @width, @length
-		this.draw_text()
+		this.draw_text(context)
 		
-	draw_text: ->
+	draw_text :(context) ->
 		context.fillStyle    = @color
 		context.font         = "15pt Calibri"
 		context.textBaseline = 'top'
 		context.fillText(@hits, @x, 5)
 		
 	
-class Field
+class pong.Field
 	constructor:(@width, @height) ->
 	
 		
-	draw: ->
+	draw: (context)->
 		context.beginPath()
 		context.rect(0, 0, @width, @height)
 		context.closePath()	

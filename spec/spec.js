@@ -21,52 +21,12 @@
       });
     });
     return describe("the run-loop", function() {
-      var MockedContext;
-      MockedContext = (function() {
-
-        function MockedContext() {}
-
-        MockedContext.prototype.beginPath = function() {
-          return "toBeSpied";
-        };
-
-        MockedContext.prototype.closePath = function() {
-          return "toBeSpied";
-        };
-
-        MockedContext.prototype.clearRect = function() {
-          return "mocked";
-        };
-
-        MockedContext.prototype.rect = function(a, b, c, d) {
-          return "mocked";
-        };
-
-        MockedContext.prototype.stroke = function() {
-          return "mocked";
-        };
-
-        MockedContext.prototype.fillRect = function(a, b, c, d) {
-          return "mocked";
-        };
-
-        MockedContext.prototype.fillText = function(text, x, y) {
-          return "mocked";
-        };
-
-        MockedContext.prototype.arc = function(a, b, c, d, e, f) {
-          return "mocked";
-        };
-
-        return MockedContext;
-
-      })();
       return it("works", function() {
-        var context;
-        context = jasmine.createSpyObj('mockedContext', ['clearRect', 'beginPath', 'closePath', 'rect', 'stroke', 'fillRect', 'fillText', 'arc']);
-        game.run_loop(context);
-        expect(context.clearRect).toHaveBeenCalled();
-        return expect(context.beginPath).toHaveBeenCalled();
+        var mockedContext;
+        mockedContext = jasmine.createSpyObj('mockedContext', ['clearRect', 'beginPath', 'closePath', 'rect', 'stroke', 'fillRect', 'fillText', 'arc']);
+        game.run_loop(mockedContext);
+        expect(mockedContext.clearRect).toHaveBeenCalled();
+        return expect(mockedContext.beginPath).toHaveBeenCalled();
       });
     });
   });

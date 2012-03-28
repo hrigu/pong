@@ -13,19 +13,8 @@ describe "game", ->
 			expect(game.bat_right).toBeDefined		
 			expect(game.bat_left).toBeDefined
 	describe "the run-loop", ->
-		class MockedContext
-			beginPath: -> "toBeSpied"
-			closePath: -> "toBeSpied"
-			clearRect: -> "mocked"
-			rect: (a, b, c, d) -> "mocked"
-			stroke: -> "mocked"		
-			fillRect: (a, b, c, d) -> "mocked"
-			fillText: (text, x, y) -> "mocked"
-			arc: (a, b, c, d, e, f) -> "mocked"		
 		it "works", ->
-			context = jasmine.createSpyObj('mockedContext', ['clearRect', 'beginPath', 'closePath', 'rect', 'stroke', 'fillRect', 'fillText', 'arc'])#new MockedContext()
-			#spyOn(context, 'clearRect')
-
-			game.run_loop(context)
-			expect(context.clearRect).toHaveBeenCalled();
-			expect(context.beginPath).toHaveBeenCalled();
+			mockedContext = jasmine.createSpyObj('mockedContext', ['clearRect', 'beginPath', 'closePath', 'rect', 'stroke', 'fillRect', 'fillText', 'arc'])#new MockedContext()
+			game.run_loop(mockedContext)
+			expect(mockedContext.clearRect).toHaveBeenCalled();
+			expect(mockedContext.beginPath).toHaveBeenCalled();

@@ -52,7 +52,7 @@
 
     Ball.prototype.color = "#0000ff";
 
-    Ball.prototype.size = 5;
+    Ball.prototype.size = 6;
 
     Ball.prototype.lineWidth = 2;
 
@@ -65,22 +65,27 @@
     Ball.prototype.dy = 5;
 
     Ball.prototype.x_left = function() {
-      return this.x - this.size - this.lineWidth;
+      return this.x - this.size / 2 - this.lineWidth;
     };
 
     Ball.prototype.x_right = function() {
-      return this.x + this.size + this.lineWidth;
+      return this.x + this.size / 2 + this.lineWidth;
     };
 
     Ball.prototype.y_low = function() {
-      return this.y - this.size - this.lineWidth;
+      return this.y - this.size / 2 - this.lineWidth;
     };
 
     Ball.prototype.y_high = function() {
-      return this.y + this.size + this.lineWidth;
+      return this.y + this.size / 2 + this.lineWidth;
     };
 
     Ball.prototype.check_collision = function(game) {
+      this._check_collision_with_bats(game);
+      return this._check_collision_with_border(game);
+    };
+
+    Ball.prototype._check_collision_with_bats = function(game) {
       var bat;
       if (this.dx > 0) {
         bat = game.bat_right;
@@ -91,19 +96,22 @@
       if (this.dx < 0) {
         bat = game.bat_left;
         if (this.x_left() < bat.x + bat.width && this.y_low() > bat.y && this.y_high() < (bat.y + bat.length)) {
-          this._update(bat);
+          return this._update(bat);
         }
       }
-      if (this.x_left() < 0) {
+    };
+
+    Ball.prototype._check_collision_with_border = function(game) {
+      if (this.x_left() <= 0) {
         this.dx = -this.dx;
         this.color = "#0000ff";
       }
-      if (this.x_right() > game.field.width) {
+      if (this.x_right() >= game.field.width) {
         game.bat_right.hits--;
         this.dx = -this.dx;
         this.color = "#0000ff";
       }
-      if (this.y_low() < 0 || this.y_high() > game.field.height) {
+      if (this.y_low() <= 0 || this.y_high() >= game.field.height) {
         return this.dy = -this.dy;
       }
     };

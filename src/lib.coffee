@@ -33,10 +33,10 @@ class pong.Ball
 	x: 30, y: 300
 	dx: 5, dy: 5
 	
-	x_left: -> @x - @size / 2 - @lineWidth
+	x_left: -> @x - (@size / 2 + @lineWidth)
 	x_right: -> @x + @size / 2 + @lineWidth
-	y_low: -> @y - @size / 2 - @lineWidth
-	y_high: -> @y + @size / 2 + @lineWidth		
+	y_top: -> @y - (@size / 2 + @lineWidth)
+	y_bottom: -> @y + @size / 2 + @lineWidth		
 	
 	
 	check_collision: (game) ->
@@ -47,11 +47,14 @@ class pong.Ball
 	_check_collision_with_bats: (game) ->
 		if (@dx > 0)
 			bat = game.bat_right
-			if (@x_right() > bat.x && @y_low() > bat.y && @y_high() < (bat.y + bat.length)) 		
+			if (@x_right() > bat.x && @y_top() > bat.y && @y_bottom() < (bat.y + bat.length)) 		
 				@_update(bat) 
 		if (@dx < 0)
 			bat = game.bat_left
-			if (@x_left() < bat.x + bat.width && @y_low() > bat.y && @y_high() < (bat.y + bat.length)) 		
+			x_left =  @x_left() 
+			y_top = @y_top()
+			y_bottom = @y_bottom()
+			if (x_left<= (bat.x + bat.width) && y_top >= bat.y && y_bottom <= (bat.y + bat.length)) 		
 				@_update(bat)
 							
 	_check_collision_with_border: (game) ->
@@ -62,7 +65,7 @@ class pong.Ball
 			game.bat_right.hits--
 			@dx = -@dx
 			@color = "#0000ff"
-		if (@y_low() <= 0 || @y_high() >= game.field.height) 
+		if (@y_top() <= 0 || @y_bottom() >= game.field.height) 
 			@dy = -@dy
 				
 	_update: (bat) ->				

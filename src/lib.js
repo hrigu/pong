@@ -65,18 +65,18 @@
     Ball.prototype.dy = 5;
 
     Ball.prototype.x_left = function() {
-      return this.x - this.size / 2 - this.lineWidth;
+      return this.x - (this.size / 2 + this.lineWidth);
     };
 
     Ball.prototype.x_right = function() {
       return this.x + this.size / 2 + this.lineWidth;
     };
 
-    Ball.prototype.y_low = function() {
-      return this.y - this.size / 2 - this.lineWidth;
+    Ball.prototype.y_top = function() {
+      return this.y - (this.size / 2 + this.lineWidth);
     };
 
-    Ball.prototype.y_high = function() {
+    Ball.prototype.y_bottom = function() {
       return this.y + this.size / 2 + this.lineWidth;
     };
 
@@ -86,16 +86,19 @@
     };
 
     Ball.prototype._check_collision_with_bats = function(game) {
-      var bat;
+      var bat, x_left, y_bottom, y_top;
       if (this.dx > 0) {
         bat = game.bat_right;
-        if (this.x_right() > bat.x && this.y_low() > bat.y && this.y_high() < (bat.y + bat.length)) {
+        if (this.x_right() > bat.x && this.y_top() > bat.y && this.y_bottom() < (bat.y + bat.length)) {
           this._update(bat);
         }
       }
       if (this.dx < 0) {
         bat = game.bat_left;
-        if (this.x_left() < bat.x + bat.width && this.y_low() > bat.y && this.y_high() < (bat.y + bat.length)) {
+        x_left = this.x_left();
+        y_top = this.y_top();
+        y_bottom = this.y_bottom();
+        if (x_left <= (bat.x + bat.width) && y_top >= bat.y && y_bottom <= (bat.y + bat.length)) {
           return this._update(bat);
         }
       }
@@ -111,7 +114,7 @@
         this.dx = -this.dx;
         this.color = "#0000ff";
       }
-      if (this.y_low() <= 0 || this.y_high() >= game.field.height) {
+      if (this.y_top() <= 0 || this.y_bottom() >= game.field.height) {
         return this.dy = -this.dy;
       }
     };

@@ -35,7 +35,7 @@
     var ball, dx, dy, x, y;
     ball = null;
     x = 20;
-    y = 20;
+    y = 50;
     dx = 3;
     dy = 6;
     beforeEach(function() {
@@ -58,37 +58,71 @@
       var game;
       game = {
         field: {
-          width: 200,
-          length: 200
+          width: 500,
+          height: 200
+        },
+        bat_left: {
+          x: 5,
+          y: 50,
+          width: 10,
+          length: 30
         },
         bat_right: {
           hits: 0
         }
       };
-      describe("the ball touches the left of the field", function() {
-        beforeEach(function() {
-          ball = new pong.Ball();
-          ball.x = 0 + ball.size / 2 + ball.lineWidth;
-          ball.y = y;
-          ball.dx = dx;
-          return ball.dy = dy;
+      return describe("the ball touches the border of the field", function() {
+        describe("left and right side: it changes dx", function() {
+          describe("when touching the left side", function() {
+            return it("dx goes positive and dy keeps the same", function() {
+              ball.dx = -dx;
+              ball.x = 0 + ball.size / 2 + ball.lineWidth;
+              ball._check_collision_with_border(game);
+              expect(ball.dx).toBe(dx);
+              return expect(ball.dy).toBe(dy);
+            });
+          });
+          return describe("when touching the right side", function() {
+            beforeEach(function() {
+              ball.x = game.field.width - (ball.size / 2 + ball.lineWidth);
+              return game.bat_right.hits = 0;
+            });
+            it("dx goes negative and dy keeps the same", function() {
+              ball._check_collision_with_border(game);
+              expect(ball.dx).toBe(-dx);
+              return expect(ball.dy).toBe(dy);
+            });
+            return it("hits of bat_right is one left", function() {
+              ball._check_collision_with_border(game);
+              return expect(game.bat_right.hits).toBe(-1);
+            });
+          });
         });
-        return it("changes dx: changes sign", function() {
-          ball._check_collision_with_border(game);
-          return expect(ball.dx).toBe(-dx);
+        describe("top and bottom: it changes dy", function() {
+          it("dy goes positive when touching the top", function() {
+            ball.dy = -dy;
+            ball.y = 0 + ball.size / 2 + ball.lineWidth;
+            ball._check_collision_with_border(game);
+            return expect(ball.dy).toBe(dy);
+          });
+          return it("dy goes negative when touching the bottom", function() {
+            ball.y = game.field.height - (ball.size / 2 + ball.lineWidth);
+            ball._check_collision_with_border(game);
+            return expect(ball.dy).toBe(-dy);
+          });
         });
-      });
-      return describe("the ball touches the top of the field", function() {
-        beforeEach(function() {
-          ball = new pong.Ball();
-          ball.x = x;
-          ball.y = 0 + ball.size / 2 + ball.lineWidth;
-          ball.dx = dx;
-          return ball.dy = -dy;
-        });
-        return it("changes dy: goes positive (" + dy + ")", function() {
-          ball._check_collision_with_border(game);
-          return expect(ball.dy).toBe(dy);
+        return describe("the ball touches a bat", function() {
+          return describe("the left bat", function() {
+            return it("dx goes positive and dy keeps the same", function() {
+              ball.x = game.bat_left.x + game.bat_left.width + (ball.size / 2 + ball.lineWidth);
+              ball.dx = -dx;
+              ball.y = 70;
+              expect(ball.dx).toBe(-dx);
+              ball._check_collision_with_bats(game);
+              expect(ball.dx).toBe(dx);
+              return expect(ball.dy).toBe(dy);
+            });
+          });
         });
       });
     });

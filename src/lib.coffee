@@ -4,7 +4,7 @@ class pong.Game
 	hits_for_winning: 10
 	winner: null
 	constructor: (width, height) ->		
-		@ball = new pong.Ball()
+		@ball = new pong.Ball(new pong.Point(30,300), 5, 5)
 		@field = new pong.Field(width, height)
 		@bat_right = new pong.Bat('green', width - 15, height / 2, 40, 38)
 		@bat_left = new pong.Bat('red', 5, height / 2, 89, 65)
@@ -27,16 +27,14 @@ class pong.Game
 			context.fillStyle    = "#{@winner.color}"
 			context.textBaseline = 'top'
 			context.fillText("The winner is #{@winner.color}!", 20, @field.height / 2-30)
+			
 class pong.Ball
-	color: "#0000ff"
-	size: 6, lineWidth: 2
-	x: 30, y: 300
-	dx: 5, dy: 5
 	
-	x_left: -> @x - (@size / 2 + @lineWidth)
-	x_right: -> @x + @size / 2 + @lineWidth
-	y_top: -> @y - (@size / 2 + @lineWidth)
-	y_bottom: -> @y + @size / 2 + @lineWidth		
+	constructor: (@pos, @dx, @dy) ->
+		@color= "#0000ff"
+		@lineWidth = 2
+		@r = 6
+		this._compute_boundaries()
 	
 	
 	check_collision: (game) ->
@@ -47,25 +45,22 @@ class pong.Ball
 	_check_collision_with_bats: (game) ->
 		if (@dx > 0)
 			bat = game.bat_right
-			if (@x_right() > bat.x && @y_top() > bat.y && @y_bottom() < (bat.y + bat.length)) 		
+			if (@x_right > bat.x && @y_top > bat.y && @y_bottom < (bat.y + bat.length)) 		
 				@_update(bat) 
 		if (@dx < 0)
 			bat = game.bat_left
-			x_left =  @x_left() 
-			y_top = @y_top()
-			y_bottom = @y_bottom()
-			if (x_left<= (bat.x + bat.width) && y_top >= bat.y && y_bottom <= (bat.y + bat.length)) 		
+			if (@x_left <= (bat.x + bat.width) && @y_top >= bat.y && @y_bottom <= (bat.y + bat.length)) 		
 				@_update(bat)
 							
 	_check_collision_with_border: (game) ->
-		if (@x_left() <= 0) 
+		if (@x_left <= 0) 
 			@dx = -@dx
 			@color = "#0000ff"
-		if (@x_right() >= game.field.width)
+		if (@x_right >= game.field.width)
 			game.bat_right.hits--
 			@dx = -@dx
 			@color = "#0000ff"
-		if (@y_top() <= 0 || @y_bottom() >= game.field.height) 
+		if (@y_top <= 0 || @y_bottom >= game.field.height) 
 			@dy = -@dy
 				
 	_update: (bat) ->				
@@ -74,12 +69,20 @@ class pong.Ball
 		bat.hits++
 		
 	compute_new_pos: () ->
-		@x += @dx
-		@y += @dy
+		@pos.x += @dx
+		@pos.y += @dy
+		this._compute_boundaries()
+	
+	_compute_boundaries: () ->
+		@x_left = @pos.x - @r
+		@x_right = @pos.x + @r
+		@y_top = @pos.y - @r
+		@y_bottom = @pos.y + @r		
+	
 	
 	draw: (context) ->
 		context.beginPath()
-		context.arc(@x, @y, @size, 0, Math.PI*2, true)
+		context.arc(@pos.x, @pos.y, @r, 0, Math.PI*2, true)
 		context.closePath()	
 		context.strokeStyle = @color	
 		context.lineWidth = @lineWidth
@@ -132,5 +135,6 @@ class pong.Field
 		context.lineWidth = 2
 		context.stroke()
 		
-	
+class pong.Point
+	constructor: (@x, @y) ->	
 	 	

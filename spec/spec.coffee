@@ -20,25 +20,22 @@ describe "game", ->
 			expect(mockedContext.beginPath).toHaveBeenCalled();
 			
 describe "Ball", ->
+	pos = 
+		x:20
+		y:50
 	ball = null
-	x = 20
-	y = 50
 	dx = 3
 	dy = 6
 	beforeEach ->
-		ball = new pong.Ball()
-		ball.x = x
-		ball.y = y
-		ball.dx = dx
-		ball.dy = dy
+		ball = new pong.Ball(new pong.Point(pos.x, pos.y), dx, dy)
 		
-	it "has the initial position (#{x}, #{y})", ->
-		expect(ball.x).toBe x
-		expect(ball.y).toBe y
-	it "can compute new position, which is (#{x+dx}, #{y+dy})", ->
+	it "has the initial position (#{pos})", ->
+		expect(ball.pos).toEqual pos
+	it "can compute new position, which is (#{pos.x+dx}, #{pos.y+dy})", ->
 		ball.compute_new_pos()
-		expect(ball.x).toBe x + dx
-		expect(ball.y).toBe y + dy
+		expect(ball.pos.x).toBe pos.x + dx
+		expect(ball.pos.y).toBe pos.y + dy
+		
 	describe "collision detection", ->
 		game = 
 			field:
@@ -58,13 +55,13 @@ describe "Ball", ->
 				describe "when touching the left side", ->
 					it "dx goes positive and dy keeps the same", ->
 						ball.dx = -dx
-						ball.x = 0 + ball.size / 2 + ball.lineWidth
+						ball.x_left = 0
 						ball._check_collision_with_border(game)
 						expect(ball.dx).toBe dx
 						expect(ball.dy).toBe dy
 				describe "when touching the right side", ->
 					beforeEach ->
-						ball.x = game.field.width - (ball.size / 2 + ball.lineWidth)
+						ball.x_right = game.field.width
 						game.bat_right.hits = 0
 					it "dx goes negative and dy keeps the same", ->
 						ball._check_collision_with_border(game)
@@ -77,19 +74,20 @@ describe "Ball", ->
 			describe "top and bottom: it changes dy", ->
 				it "dy goes positive when touching the top", ->
 					ball.dy = -dy
-					ball.y = 0 + ball.size / 2 + ball.lineWidth
+					ball.y_top = 0
 					ball._check_collision_with_border(game)
 					expect(ball.dy).toBe dy
 				it "dy goes negative when touching the bottom", ->
-					ball.y = game.field.height - (ball.size / 2 + ball.lineWidth)
+					ball.y_bottom = game.field.height
 					ball._check_collision_with_border(game)
 					expect(ball.dy).toBe -dy
 			describe "the ball touches a bat", ->
 				describe "the left bat", ->
 					it "dx goes positive and dy keeps the same", ->
-						ball.x = game.bat_left.x + game.bat_left.width + (ball.size / 2 + ball.lineWidth)
+						ball.x_left = game.bat_left.x + game.bat_left.width
 						ball.dx = -dx
-						ball.y = 70
+						ball.y_top = 70
+						ball.y_bottom = 70
 						expect(ball.dx).toBe -dx
 						ball._check_collision_with_bats(game)
 						expect(ball.dx).toBe dx

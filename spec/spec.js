@@ -32,27 +32,24 @@
   });
 
   describe("Ball", function() {
-    var ball, dx, dy, x, y;
+    var ball, dx, dy, pos;
+    pos = {
+      x: 20,
+      y: 50
+    };
     ball = null;
-    x = 20;
-    y = 50;
     dx = 3;
     dy = 6;
     beforeEach(function() {
-      ball = new pong.Ball();
-      ball.x = x;
-      ball.y = y;
-      ball.dx = dx;
-      return ball.dy = dy;
+      return ball = new pong.Ball(new pong.Point(pos.x, pos.y), dx, dy);
     });
-    it("has the initial position (" + x + ", " + y + ")", function() {
-      expect(ball.x).toBe(x);
-      return expect(ball.y).toBe(y);
+    it("has the initial position (" + pos + ")", function() {
+      return expect(ball.pos).toEqual(pos);
     });
-    it("can compute new position, which is (" + (x + dx) + ", " + (y + dy) + ")", function() {
+    it("can compute new position, which is (" + (pos.x + dx) + ", " + (pos.y + dy) + ")", function() {
       ball.compute_new_pos();
-      expect(ball.x).toBe(x + dx);
-      return expect(ball.y).toBe(y + dy);
+      expect(ball.pos.x).toBe(pos.x + dx);
+      return expect(ball.pos.y).toBe(pos.y + dy);
     });
     return describe("collision detection", function() {
       var game;
@@ -76,7 +73,7 @@
           describe("when touching the left side", function() {
             return it("dx goes positive and dy keeps the same", function() {
               ball.dx = -dx;
-              ball.x = 0 + ball.size / 2 + ball.lineWidth;
+              ball.x_left = 0;
               ball._check_collision_with_border(game);
               expect(ball.dx).toBe(dx);
               return expect(ball.dy).toBe(dy);
@@ -84,7 +81,7 @@
           });
           return describe("when touching the right side", function() {
             beforeEach(function() {
-              ball.x = game.field.width - (ball.size / 2 + ball.lineWidth);
+              ball.x_right = game.field.width;
               return game.bat_right.hits = 0;
             });
             it("dx goes negative and dy keeps the same", function() {
@@ -101,12 +98,12 @@
         describe("top and bottom: it changes dy", function() {
           it("dy goes positive when touching the top", function() {
             ball.dy = -dy;
-            ball.y = 0 + ball.size / 2 + ball.lineWidth;
+            ball.y_top = 0;
             ball._check_collision_with_border(game);
             return expect(ball.dy).toBe(dy);
           });
           return it("dy goes negative when touching the bottom", function() {
-            ball.y = game.field.height - (ball.size / 2 + ball.lineWidth);
+            ball.y_bottom = game.field.height;
             ball._check_collision_with_border(game);
             return expect(ball.dy).toBe(-dy);
           });
@@ -114,9 +111,10 @@
         return describe("the ball touches a bat", function() {
           return describe("the left bat", function() {
             return it("dx goes positive and dy keeps the same", function() {
-              ball.x = game.bat_left.x + game.bat_left.width + (ball.size / 2 + ball.lineWidth);
+              ball.x_left = game.bat_left.x + game.bat_left.width;
               ball.dx = -dx;
-              ball.y = 70;
+              ball.y_top = 70;
+              ball.y_bottom = 70;
               expect(ball.dx).toBe(-dx);
               ball._check_collision_with_bats(game);
               expect(ball.dx).toBe(dx);

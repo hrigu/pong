@@ -11,7 +11,7 @@
     Game.prototype.winner = null;
 
     function Game(width, height) {
-      this.ball = new pong.Ball();
+      this.ball = new pong.Ball(new pong.Point(30, 300), 5, 5);
       this.field = new pong.Field(width, height);
       this.bat_right = new pong.Bat('green', width - 15, height / 2, 40, 38);
       this.bat_left = new pong.Bat('red', 5, height / 2, 89, 65);
@@ -48,37 +48,15 @@
 
   pong.Ball = (function() {
 
-    function Ball() {}
-
-    Ball.prototype.color = "#0000ff";
-
-    Ball.prototype.size = 6;
-
-    Ball.prototype.lineWidth = 2;
-
-    Ball.prototype.x = 30;
-
-    Ball.prototype.y = 300;
-
-    Ball.prototype.dx = 5;
-
-    Ball.prototype.dy = 5;
-
-    Ball.prototype.x_left = function() {
-      return this.x - (this.size / 2 + this.lineWidth);
-    };
-
-    Ball.prototype.x_right = function() {
-      return this.x + this.size / 2 + this.lineWidth;
-    };
-
-    Ball.prototype.y_top = function() {
-      return this.y - (this.size / 2 + this.lineWidth);
-    };
-
-    Ball.prototype.y_bottom = function() {
-      return this.y + this.size / 2 + this.lineWidth;
-    };
+    function Ball(pos, dx, dy) {
+      this.pos = pos;
+      this.dx = dx;
+      this.dy = dy;
+      this.color = "#0000ff";
+      this.lineWidth = 2;
+      this.r = 6;
+      this._compute_boundaries();
+    }
 
     Ball.prototype.check_collision = function(game) {
       this._check_collision_with_bats(game);
@@ -86,35 +64,32 @@
     };
 
     Ball.prototype._check_collision_with_bats = function(game) {
-      var bat, x_left, y_bottom, y_top;
+      var bat;
       if (this.dx > 0) {
         bat = game.bat_right;
-        if (this.x_right() > bat.x && this.y_top() > bat.y && this.y_bottom() < (bat.y + bat.length)) {
+        if (this.x_right > bat.x && this.y_top > bat.y && this.y_bottom < (bat.y + bat.length)) {
           this._update(bat);
         }
       }
       if (this.dx < 0) {
         bat = game.bat_left;
-        x_left = this.x_left();
-        y_top = this.y_top();
-        y_bottom = this.y_bottom();
-        if (x_left <= (bat.x + bat.width) && y_top >= bat.y && y_bottom <= (bat.y + bat.length)) {
+        if (this.x_left <= (bat.x + bat.width) && this.y_top >= bat.y && this.y_bottom <= (bat.y + bat.length)) {
           return this._update(bat);
         }
       }
     };
 
     Ball.prototype._check_collision_with_border = function(game) {
-      if (this.x_left() <= 0) {
+      if (this.x_left <= 0) {
         this.dx = -this.dx;
         this.color = "#0000ff";
       }
-      if (this.x_right() >= game.field.width) {
+      if (this.x_right >= game.field.width) {
         game.bat_right.hits--;
         this.dx = -this.dx;
         this.color = "#0000ff";
       }
-      if (this.y_top() <= 0 || this.y_bottom() >= game.field.height) {
+      if (this.y_top <= 0 || this.y_bottom >= game.field.height) {
         return this.dy = -this.dy;
       }
     };
@@ -126,13 +101,21 @@
     };
 
     Ball.prototype.compute_new_pos = function() {
-      this.x += this.dx;
-      return this.y += this.dy;
+      this.pos.x += this.dx;
+      this.pos.y += this.dy;
+      return this._compute_boundaries();
+    };
+
+    Ball.prototype._compute_boundaries = function() {
+      this.x_left = this.pos.x - this.r;
+      this.x_right = this.pos.x + this.r;
+      this.y_top = this.pos.y - this.r;
+      return this.y_bottom = this.pos.y + this.r;
     };
 
     Ball.prototype.draw = function(context) {
       context.beginPath();
-      context.arc(this.x, this.y, this.size, 0, Math.PI * 2, true);
+      context.arc(this.pos.x, this.pos.y, this.r, 0, Math.PI * 2, true);
       context.closePath();
       context.strokeStyle = this.color;
       context.lineWidth = this.lineWidth;
@@ -216,6 +199,17 @@
     };
 
     return Field;
+
+  })();
+
+  pong.Point = (function() {
+
+    function Point(x, y) {
+      this.x = x;
+      this.y = y;
+    }
+
+    return Point;
 
   })();
 

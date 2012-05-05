@@ -25,9 +25,7 @@
       if (!this.winner) {
         this.bat_left.draw(context);
         this.bat_right.draw(context);
-        this.ball.draw(context);
-        this.ball.check_collision(this);
-        this.ball.compute_new_pos();
+        this.ball.update(context, this);
         if (this.bat_left.hits >= this.hits_for_winning) {
           this.winner = this.bat_left;
         }
@@ -55,8 +53,15 @@
       this.color = "#0000ff";
       this.lineWidth = 2;
       this.r = 6;
+      this.visible = true;
       this._compute_boundaries();
     }
+
+    Ball.prototype.update = function(context, game) {
+      this.draw(context);
+      this.check_collision(game);
+      return this.compute_new_pos();
+    };
 
     Ball.prototype.check_collision = function(game) {
       this._check_collision_with_bats(game);

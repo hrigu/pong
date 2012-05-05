@@ -6,7 +6,7 @@ class pong.Game
 	constructor: (width, height) ->		
 		@ball = new pong.Ball(new pong.Point(30,300), 5, 5)
 		@field = new pong.Field(width, height)
-		@bat_right = new pong.Bat('green', width - 15, height / 2, 40, 38)
+		@bat_right = new pong.Bat('green', width - 15, height / 2, 40, 38, )
 		@bat_left = new pong.Bat('red', 5, height / 2, 89, 65)
 
 	run_loop: (context) ->
@@ -16,10 +16,8 @@ class pong.Game
 		@bat_right.draw(context)	
 		if (! @winner)
 			@bat_left.draw(context)	
-			@bat_right.draw(context)	
-			@ball.draw(context)
-			@ball.check_collision(this)
-			@ball.compute_new_pos()
+			@bat_right.draw(context)
+			@ball.update(context, this)
 			@winner = @bat_left if (@bat_left.hits >= @hits_for_winning)
 			@winner = @bat_right if (@bat_right.hits >= @hits_for_winning)
 		else 
@@ -34,9 +32,14 @@ class pong.Ball
 		@color= "#0000ff"
 		@lineWidth = 2
 		@r = 6
+		@visible = true
 		this._compute_boundaries()
 	
-	
+	update:(context, game) ->
+		this.draw(context)
+		this.check_collision(game)
+		this.compute_new_pos()
+
 	check_collision: (game) ->
 		@_check_collision_with_bats(game)
 		@_check_collision_with_border(game)	
